@@ -1,0 +1,53 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@libs/persistence": [
+        "libs/persistence/src"
+      ],
+      "@libs/persistence/*": [
+        "libs/persistence/src/*"
+      ],
+      "@libs/graphql": [
+        "libs/graphql/src"
+      ],
+      "@libs/graphql/*": [
+        "libs/graphql/src/*"
+      ],
+      "@libs/env": [
+        "libs/env/src"
+      ],
+      "@libs/env/*": [
+        "libs/env/src/*"
+      ],
+      "@components/exam": [
+        "libs/components/exam/src"
+      ],
+      "@components/exam/*": [
+        "libs/components/exam/src/*"
+      ],
+      "@app/logger": [
+        "libs/logger/src"
+      ],
+      "@app/logger/*": [
+        "libs/logger/src/*"
+      ],
+    }
+  }
+}

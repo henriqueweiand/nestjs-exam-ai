@@ -1,5 +1,6 @@
 import { Logger, LoggerService } from '@app/logger';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { FileUpload, GraphQLUpload } from 'graphql-upload-ts';
 
 import { Exam } from './exam.entity';
 import { ExamService } from './exam.service';
@@ -31,5 +32,14 @@ export class ExamResolver {
       file_url,
       file_checksum,
     });
+  }
+
+  @Mutation(() => Exam)
+  async uploadExam(
+    @Args({ name: 'file', type: () => GraphQLUpload })
+    file: Promise<FileUpload>,
+  ): Promise<Exam> {
+    const upload = await file;
+    return await this.examService.uploadAndCreate(upload);
   }
 }

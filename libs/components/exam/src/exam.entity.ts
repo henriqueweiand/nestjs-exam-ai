@@ -17,11 +17,11 @@ export class Exam {
   records: Record[];
 
   @Field(() => String)
-  @Column('varchar', { length: 60, name: 'file_url' })
+  @Column('varchar', { length: 120, name: 'file_url' })
   file_url: string;
 
   @Field(() => String)
-  @Column('varchar', { length: 60, name: 'file_checksum' })
+  @Column('varchar', { length: 120, name: 'file_checksum' })
   file_checksum: string;
 
   @Field(() => String)

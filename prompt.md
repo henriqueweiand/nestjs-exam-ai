@@ -28,6 +28,7 @@ Response Format:
     ],
     summary: "Patient's health status is within normal range.",
     recommendations: "Maintain a healthy diet and exercise regularly."
+    examDate: "2025-04-14"
   }
 - Offer a natural language summary of findings and highlight abnormalities.
 
@@ -36,3 +37,4 @@ Important Notes:
 - Add a summary section with a general overview of the patient's health status.
 - Add a section for recommendations based on the findings.
 - No need to return any text as message except the JSON structure.
+- Find the date that the exam was made.

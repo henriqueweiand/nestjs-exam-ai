@@ -5,9 +5,8 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { PersistenceFactory } from '../persistence.factory.interface';
 
 @Injectable()
-export class TypeOrmFactory
-  implements PersistenceFactory<TypeOrmModuleOptions> {
-  constructor(private configService: ConfigService) { }
+export class TypeOrmFactory implements PersistenceFactory<TypeOrmModuleOptions> {
+  constructor(private configService: ConfigService) {}
 
   async create(dbName: string) {
     return this._pgSettings(dbName);
@@ -20,6 +19,7 @@ export class TypeOrmFactory
       autoLoadEntities: true,
       synchronize: false,
       migrationsRun: false,
+      ssl: true,
       entities: [__dirname + '../../../**/*.entity{.ts,.js}'],
     };
 
@@ -27,6 +27,23 @@ export class TypeOrmFactory
   }
 
   private _getEnvs(dbName: string) {
+    const DATABASE_URL = this.configService.getOrThrow(`DATABASE_URL`);
+
+    if (DATABASE_URL) {
+      console.info('USING DATABASE_URL');
+
+      return {
+        type: 'postgres',
+        url: DATABASE_URL,
+        ssl: {
+          rejectUnauthorized: false,
+        },
+        entities: [__dirname + '../../../../**/*.entity{.ts,.js}'],
+        migrations: [`${__dirname}/migrations/*{.ts,.js}`],
+        logging: true,
+      };
+    }
+
     return {
       host: this.configService.getOrThrow(`${dbName}.HOST`),
       port: parseInt(this.configService.getOrThrow(`${dbName}.PORT`), 10),

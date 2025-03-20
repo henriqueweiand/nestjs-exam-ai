@@ -9,6 +9,7 @@ import { GraphQLModule } from '@nestjs/graphql';
       driver: ApolloDriver,
       playground: false,
       autoSchemaFile: true,
+      introspection: true,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
   ],

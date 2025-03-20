@@ -13,6 +13,7 @@ export class Exam {
   @OneToMany(() => Record, record => record.exam, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
+    cascade: true,
   })
   records: Record[];
 
@@ -23,6 +24,10 @@ export class Exam {
   @Field(() => String)
   @Column('varchar', { length: 120, name: 'file_checksum' })
   file_checksum: string;
+
+  @Field(() => String)
+  @Column('varchar', { length: 60, name: 'external_file_id', nullable: true })
+  external_file_id?: string;
 
   @Field(() => String)
   @Column('text', { name: 'summary' })

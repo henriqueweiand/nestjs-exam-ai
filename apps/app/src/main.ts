@@ -13,9 +13,9 @@ async function bootstrap() {
 
   app.enableCors({
     origin: true,
-    credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: ['content-type', 'x-apollo-operation-name', 'apollo-require-preflight'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization', 'apollo-require-preflight'],
+    credentials: true,
   });
 
   app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 5 }));

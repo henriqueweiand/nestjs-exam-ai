@@ -42,6 +42,18 @@
       "@components/exam/*": [
         "libs/components/exam/src/*"
       ],
+      "@components/openai": [
+        "libs/components/openai/src"
+      ],
+      "@components/openai/*": [
+        "libs/components/openai/src/*"
+      ],
+      "@components/file-management": [
+        "libs/components/file-management/src"
+      ],
+      "@components/file-management/*": [
+        "libs/components/file-management/src/*"
+      ],
       "@app/logger": [
         "libs/logger/src"
       ],

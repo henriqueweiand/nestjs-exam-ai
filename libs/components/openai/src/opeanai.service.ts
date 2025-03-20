@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { ReadStream } from 'fs';
 import { OpenAI } from 'openai';
-// import * as fs from 'fs';
-// import * as path from 'path';
 
 @Injectable()
 export class OpenAIService {
@@ -9,19 +8,35 @@ export class OpenAIService {
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  async uploadExamPdf(): Promise<string> {
+  async processExamFile(fileStream: ReadStream): Promise<any> {
     try {
-      // const filePath = path.join(process.cwd(), 'exam.pdf');
+      // Upload file to OpenAI with explicit file type
+      const file = await this.openai.files.create({
+        file: fileStream,
+        purpose: 'assistants',
+      });
 
-      // const response = await this.openai.files.create({
-      //   file: fs.createReadStream(filePath),
-      //   purpose: 'assistants',
-      // });
+      // Wait a moment for the file to be processed
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-      return 'file-W5p9PAdTjFKmzZniCa3NmU';
-      // return response.id;
+      // Create thread and process
+      const thread = await this.createThread();
+      await this.addMessage(thread.id, file.id);
+      const run = await this.runAssistant(thread.id);
+
+      // Wait for processing
+      let result = null;
+      while (!result) {
+        result = await this.checkStatus(thread.id, run.id);
+        if (!result) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+
+      return result;
     } catch (error) {
-      console.error(error);
+      console.error('OpenAI processing error:', error);
+      throw error;
     }
   }
 
@@ -53,16 +68,12 @@ export class OpenAIService {
   }
 
   async checkStatus(threadId: string, runId: string) {
-    const runObject = await this.openai.beta.threads.runs.retrieve(
-      threadId,
-      runId,
-    );
+    const runObject = await this.openai.beta.threads.runs.retrieve(threadId, runId);
 
     if (runObject.status === 'failed') throw new Error('Assistant run failed');
 
     if (runObject.status === 'completed') {
-      const messagesList =
-        await this.openai.beta.threads.messages.list(threadId);
+      const messagesList = await this.openai.beta.threads.messages.list(threadId);
       return messagesList.data;
     }
 

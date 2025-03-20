@@ -1,29 +1,28 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { createWriteStream } from 'fs';
 import { FileUpload } from 'graphql-upload-ts';
-import { v4 as uuidv4 } from 'uuid';
-import * as crypto from 'crypto';
-import { join } from 'path';
+import { Repository } from 'typeorm';
 
 import { Logger, LoggerService } from '@app/logger';
+import { FileManagementService } from '@components/file-management/file-management.service';
 import { Exam } from './exam.entity';
+import { Record } from './record/record.entity';
 import { RecordService } from './record/record.service';
+import { OpenAIService } from '@components/openai/opeanai.service';
 
 @Injectable()
 export class ExamService {
   private logger: Logger;
-  private readonly uploadsPath: string;
 
   constructor(
     private readonly loggerService: LoggerService,
     private readonly recordService: RecordService,
     @InjectRepository(Exam)
     private readonly examRepository: Repository<Exam>,
+    private readonly fileManagementService: FileManagementService,
+    private readonly openAIService: OpenAIService,
   ) {
     this.logger = this.loggerService.getLogger(ExamService.name);
-    this.uploadsPath = join(process.cwd(), 'uploads');
   }
 
   async findAll(): Promise<Exam[]> {
@@ -45,61 +44,63 @@ export class ExamService {
     return exam;
   }
 
-  async create(data: {
-    file_url: string;
-    file_checksum: string;
-    summary?: string;
-    recommendations?: string;
-    findings?: Array<{
-      name: string;
-      value: string;
-      unit: string;
-      normal_range: string;
-      group: string;
-    }>;
-  }) {
-    const exam = await this.examRepository.save({
+  async create(data: Partial<Exam>): Promise<Exam> {
+    const exam = this.examRepository.create({
       file_url: data.file_url,
       file_checksum: data.file_checksum,
       summary: data.summary || '',
       recommendations: data.recommendations || '',
+      records: data.records?.map(finding => new Record({ ...finding })) || [],
     });
 
-    if (data.findings?.length) {
-      await Promise.all(
-        data.findings.map(finding =>
-          this.recordService.create({
-            ...finding,
-            examId: exam.id,
-          }),
-        ),
-      );
-    }
-
-    return this.findOne(exam.id);
+    await this.examRepository.save(exam);
+    return exam;
   }
 
   async uploadAndCreate(file: FileUpload): Promise<Exam> {
-    const { createReadStream } = file;
-    const uniqueFilename = `${uuidv4()}`;
-    const filePath = join(this.uploadsPath, uniqueFilename);
+    try {
+      // Save file
+      const { path, checksum } = await this.fileManagementService.saveFile(file);
 
-    // Create read stream and calculate checksum
-    const readStream = createReadStream();
-    const hash = crypto.createHash('md5');
+      // Create initial exam record
+      const exam = await this.create({
+        file_url: path,
+        file_checksum: checksum,
+      });
 
-    // Save file and calculate checksum
-    await new Promise((resolve, reject) => {
-      const writeStream = createWriteStream(filePath);
-      readStream.pipe(hash).pipe(writeStream).on('finish', resolve).on('error', reject);
-    });
+      try {
+        // Process with OpenAI
+        const fileStream = this.fileManagementService.getFileStream(path);
+        const processedData = await this.openAIService.processExamFile(fileStream);
 
-    const checksum = hash.digest('hex');
+        if (!processedData || !processedData[0]?.content?.[0]?.text?.value) {
+          throw new Error('Invalid response format from OpenAI');
+        }
 
-    // Create exam record
-    return this.create({
-      file_url: filePath,
-      file_checksum: checksum,
-    });
+        // Update exam with processed data
+        const parsedData = JSON.parse(processedData[0].content[0].text.value);
+
+        exam.summary = parsedData.summary;
+        exam.recommendations = parsedData.recommendations;
+
+        // Create records
+        exam.records = await Promise.all(
+          parsedData.findings.map(finding =>
+            this.recordService.create({
+              examId: exam.id,
+              ...finding,
+            }),
+          ),
+        );
+
+        return await this.examRepository.save(exam);
+      } catch (error) {
+        this.logger.error(`Failed to process exam with OpenAI: ${error.message}`);
+        throw new InternalServerErrorException('Failed to process exam with AI');
+      }
+    } catch (error) {
+      this.logger.error(`Failed to handle exam upload: ${error.message}`);
+      throw new InternalServerErrorException('Failed to handle exam upload');
+    }
   }
 }

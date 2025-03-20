@@ -27,19 +27,17 @@ export class ExamResolver {
   }
 
   @Mutation(() => Exam)
-  async create(@Args('file_url') file_url: string, @Args('file_checksum') file_checksum: string): Promise<Exam> {
-    return await this.examService.create({
-      file_url,
-      file_checksum,
-    });
-  }
-
-  @Mutation(() => Exam)
   async uploadExam(
     @Args({ name: 'file', type: () => GraphQLUpload })
     file: Promise<FileUpload>,
   ): Promise<Exam> {
+    this.logger.log('Starting exam upload and processing');
+
     const upload = await file;
-    return await this.examService.uploadAndCreate(upload);
+    const exam = await this.examService.uploadAndCreate(upload);
+
+    this.logger.log(`Exam processed successfully with ID: ${exam.id}`);
+
+    return exam;
   }
 }

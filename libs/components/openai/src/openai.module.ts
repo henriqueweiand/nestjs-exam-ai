@@ -6,5 +6,6 @@ import { OpenAIController } from './openai.controller';
   imports: [],
   controllers: [OpenAIController],
   providers: [OpenAIService],
+  exports: [OpenAIService],
 })
 export class OpenAIModule {}

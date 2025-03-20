@@ -44,6 +44,24 @@
         "tsConfigPath": "libs/components/exam/tsconfig.lib.json"
       }
     },
+    "openai": {
+      "type": "library",
+      "root": "libs/components/openai",
+      "entryFile": "index",
+      "sourceRoot": "libs/components/openai/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/components/openai/tsconfig.lib.json"
+      }
+    },
+    "file-management": {
+      "type": "library",
+      "root": "libs/components/file-management",
+      "entryFile": "index",
+      "sourceRoot": "libs/components/file-management/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/components/file-management/tsconfig.lib.json"
+      }
+    },
     "graphql": {
       "type": "library",
       "root": "libs/graphql",

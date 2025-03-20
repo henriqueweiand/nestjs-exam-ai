@@ -1,0 +1,92 @@
+// export const processedMessageMock = {
+//   findings: [
+//     {
+//       name: 'Glucose',
+//       value: '86',
+//       unit: 'mg/dL',
+//       normal_range: '70-99',
+//       group: 'sugar',
+//     },
+//     {
+//       name: 'Cholesterol Total',
+//       value: '201',
+//       unit: 'mg/dL',
+//       normal_range: '<190',
+//       group: 'lipids',
+//     },
+//     {
+//       name: 'Triglycerides',
+//       value: '56',
+//       unit: 'mg/dL',
+//       normal_range: '<150',
+//       group: 'lipids',
+//     },
+//     {
+//       name: 'Cholesterol HDL',
+//       value: '67',
+//       unit: 'mg/dL',
+//       normal_range: '>40',
+//       group: 'lipids',
+//     },
+//     {
+//       name: 'Cholesterol LDL',
+//       value: '119',
+//       unit: 'mg/dL',
+//       normal_range: '<130',
+//       group: 'lipids',
+//     },
+//     {
+//       name: 'Hemoglobin',
+//       value: '15.50',
+//       unit: 'g/dL',
+//       normal_range: '13.30-16.50',
+//       group: 'iron',
+//     },
+//     {
+//       name: 'Urea',
+//       value: '56.0',
+//       unit: 'mg/dL',
+//       normal_range: '12.8-42.8',
+//       group: 'inflammation',
+//     },
+//     {
+//       name: 'Alanine Amino Transferase (ALT)',
+//       value: '44',
+//       unit: 'U/L',
+//       normal_range: '≤45',
+//       group: 'liver enzymes',
+//     },
+//     {
+//       name: 'Aspartate Amino Transferase (AST)',
+//       value: '54',
+//       unit: 'U/L',
+//       normal_range: '≤40',
+//       group: 'liver enzymes',
+//     },
+//     {
+//       name: 'Creatinine',
+//       value: '1.03',
+//       unit: 'mg/dL',
+//       normal_range: '0.50-1.00',
+//       group: 'liver enzymes',
+//     },
+//     {
+//       name: 'Vitamin D',
+//       value: '32.39',
+//       unit: 'ng/mL',
+//       normal_range: '20.0-60.0',
+//       group: 'urine',
+//     },
+//     {
+//       name: 'Hemoglobin A1c',
+//       value: '4.7',
+//       unit: '%',
+//       normal_range: '<5.7',
+//       group: 'sugar',
+//     },
+//   ],
+//   summary:
+//     'The patient displays elevated cholesterol total, low urea levels, elevated AST, and creatinine values. Other parameters are within normal limits.',
+//   recommendations:
+//     'Consider dietary adjustments to lower cholesterol levels, maintain hydration and monitor kidney function, as well as regular exercise.',
+// };

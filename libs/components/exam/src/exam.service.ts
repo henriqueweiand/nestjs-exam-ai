@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileUpload } from 'graphql-upload-ts';
 import { Repository } from 'typeorm';
@@ -44,6 +44,13 @@ export class ExamService {
     return exam;
   }
 
+  async findByChecksum(checksum: string): Promise<Exam | null> {
+    return await this.examRepository.findOne({
+      where: { file_checksum: checksum },
+      relations: ['records'],
+    });
+  }
+
   async create(data: Partial<Exam>): Promise<Exam> {
     const exam = this.examRepository.create({
       file_url: data.file_url,
@@ -61,6 +68,14 @@ export class ExamService {
     try {
       // Save file
       const { path, checksum } = await this.fileManagementService.saveFile(file);
+
+      // Check if exam already exists
+      const existingExam = await this.findByChecksum(checksum);
+      if (existingExam) {
+        // Remove the uploaded file since it's a duplicate
+        await this.fileManagementService.deleteFile(path);
+        throw new ConflictException('An exam with this content already exists');
+      }
 
       // Create initial exam record
       const exam = await this.create({
@@ -82,6 +97,7 @@ export class ExamService {
 
         exam.summary = parsedData.summary;
         exam.recommendations = parsedData.recommendations;
+        exam.collectedDate = parsedData.examDate || new Date();
 
         // Create records
         exam.records = await Promise.all(
@@ -99,6 +115,9 @@ export class ExamService {
         throw new InternalServerErrorException('Failed to process exam with AI');
       }
     } catch (error) {
+      if (error instanceof ConflictException) {
+        throw error;
+      }
       this.logger.error(`Failed to handle exam upload: ${error.message}`);
       throw new InternalServerErrorException('Failed to handle exam upload');
     }

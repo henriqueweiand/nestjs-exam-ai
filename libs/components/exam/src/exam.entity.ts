@@ -18,11 +18,11 @@ export class Exam {
   records: Record[];
 
   @Field(() => String)
-  @Column('varchar', { length: 120, name: 'file_url' })
+  @Column('varchar', { length: 200, name: 'file_url' })
   file_url: string;
 
   @Field(() => String)
-  @Column('varchar', { length: 120, name: 'file_checksum' })
+  @Column('varchar', { length: 200, name: 'file_checksum' })
   file_checksum: string;
 
   @Field(() => String)
@@ -37,15 +37,15 @@ export class Exam {
   @Column('text', { name: 'recommendations' })
   recommendations: string;
 
-  @Field(() => Date)
-  @CreateDateColumn({ type: 'date', name: 'collected_date' })
-  collectedDate: Date;
+  @Field(() => String) // Changed from Date to String for proper serialization
+  @Column({ type: 'date', name: 'collected_date', nullable: true })
+  collectedDate?: Date;
 
-  @Field(() => Date)
+  @Field(() => String) // Changed from Date to String for proper serialization
   @CreateDateColumn({ type: 'timestamptz', name: 'create_dtm' })
   createdDate?: Date;
 
-  @Field(() => Date)
+  @Field(() => String) // Changed from Date to String for proper serialization
   @UpdateDateColumn({ type: 'timestamptz', name: 'modify_dtm' })
   modifiedDate?: Date;
 

@@ -1,13 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { createWriteStream } from 'fs';
 import { join, extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
+import { promises as fsPromises } from 'fs';
 import { FileUpload } from 'graphql-upload-ts';
+import { Logger, LoggerService } from '@app/logger';
 
 @Injectable()
 export class FileManagementService {
+  private logger: Logger;
+
+  constructor(private readonly loggerService: LoggerService) {
+    this.logger = this.loggerService.getLogger(FileManagementService.name);
+  }
+
   async saveFile(file: FileUpload): Promise<{ path: string; checksum: string }> {
     const UPLOAD_DIR = 'uploads';
     const uploadsPath = join(process.cwd(), UPLOAD_DIR);
@@ -50,5 +58,15 @@ export class FileManagementService {
       encoding: null,
       autoClose: true,
     });
+  }
+
+  async deleteFile(filePath: string): Promise<void> {
+    try {
+      await fsPromises.unlink(filePath);
+      this.logger.log(`Successfully deleted file: ${filePath}`);
+    } catch (error) {
+      this.logger.error(`Failed to delete file ${filePath}: ${error.message}`);
+      throw new InternalServerErrorException('Failed to delete file');
+    }
   }
 }

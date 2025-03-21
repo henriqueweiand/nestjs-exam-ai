@@ -17,13 +17,14 @@ export class RecordService {
     this.logger = this.loggerService.getLogger(RecordService.name);
   }
 
-  async create(data: { examId: string; name: string; value: string; unit: string; normal_range: string; group: string }) {
+  async create(data: { examId: string; name: string; value: string; unit: string; normal_range: string; group: string; normal_range_type?: string }) {
     return this.recordRepository.save({
       examId: data.examId,
       name: data.name,
       value: data.value,
       unit: data.unit,
       normalRange: data.normal_range,
+      normalRangeType: data.normal_range_type,
       group: data.group,
     });
   }

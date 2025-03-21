@@ -28,6 +28,7 @@ export class ExamService {
   async findAll(): Promise<Exam[]> {
     return await this.examRepository.find({
       relations: ['records'],
+      order: { collectedDate: 'DESC' },
     });
   }
 

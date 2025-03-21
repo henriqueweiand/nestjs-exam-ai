@@ -38,6 +38,10 @@ export class Record {
   normalRange: string;
 
   @Field(() => String)
+  @Column('varchar', { name: 'normal_range_type', nullable: true, default: null })
+  normalRangeType: string;
+
+  @Field(() => String)
   @Column('varchar', { name: 'group' })
   group: string;
 

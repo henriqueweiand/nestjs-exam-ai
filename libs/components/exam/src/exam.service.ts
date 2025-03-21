@@ -25,16 +25,17 @@ export class ExamService {
     this.logger = this.loggerService.getLogger(ExamService.name);
   }
 
-  async findAll(): Promise<Exam[]> {
+  async findAll(userId: string): Promise<Exam[]> {
     return await this.examRepository.find({
+      where: { userId },
       relations: ['records'],
       order: { collectedDate: 'DESC' },
     });
   }
 
-  async findOne(id: string): Promise<Exam> {
+  async findOne(id: string, userId: string): Promise<Exam> {
     const exam = await this.examRepository.findOne({
-      where: { id },
+      where: { id, userId },
       relations: ['records'],
     });
 
@@ -45,15 +46,16 @@ export class ExamService {
     return exam;
   }
 
-  async findByChecksum(checksum: string): Promise<Exam | null> {
+  async findByChecksum(checksum: string, userId: string): Promise<Exam | null> {
     return await this.examRepository.findOne({
-      where: { file_checksum: checksum },
+      where: { file_checksum: checksum, userId },
       relations: ['records'],
     });
   }
 
   async create(data: Partial<Exam>): Promise<Exam> {
     const exam = this.examRepository.create({
+      userId: data.userId,
       file_url: data.file_url,
       file_checksum: data.file_checksum,
       summary: data.summary || '',
@@ -65,13 +67,13 @@ export class ExamService {
     return exam;
   }
 
-  async uploadAndCreate(file: FileUpload): Promise<Exam> {
+  async uploadAndCreate(file: FileUpload, userId: string): Promise<Exam> {
     try {
       // Save file
       const { path, checksum } = await this.fileManagementService.saveFile(file);
 
       // Check if exam already exists
-      const existingExam = await this.findByChecksum(checksum);
+      const existingExam = await this.findByChecksum(checksum, userId);
       if (existingExam) {
         // Remove the uploaded file since it's a duplicate
         await this.fileManagementService.deleteFile(path);
@@ -80,6 +82,7 @@ export class ExamService {
 
       // Create initial exam record
       const exam = await this.create({
+        userId,
         file_url: path,
         file_checksum: checksum,
       });

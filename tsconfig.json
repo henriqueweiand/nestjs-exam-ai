@@ -36,6 +36,12 @@
       "@libs/env/*": [
         "libs/env/src/*"
       ],
+      "@libs/auth": [
+        "libs/auth/src"
+      ],
+      "@libs/auth/*": [
+        "libs/auth/src/*"
+      ],
       "@components/exam": [
         "libs/components/exam/src"
       ],

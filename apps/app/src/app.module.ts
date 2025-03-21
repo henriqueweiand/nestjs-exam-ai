@@ -5,10 +5,11 @@ import { EnvModule } from '@libs/env';
 import { PersistenceModule } from '@libs/persistence';
 import { GraphqlModule } from '@libs/graphql';
 import { ExamModule } from '@components/exam';
+import { AuthModule } from '@libs/auth';
 
 const app = 'APP';
 
 @Module({
-  imports: [LoggerModule, EnvModule.register(app), PersistenceModule.registerTypeOrm(app), ExamModule, GraphqlModule],
+  imports: [AuthModule, LoggerModule, EnvModule.register(app), PersistenceModule.registerTypeOrm(app), ExamModule, GraphqlModule],
 })
 export class AppModule {}

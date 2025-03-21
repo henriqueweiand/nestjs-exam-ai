@@ -18,6 +18,10 @@ export class Exam {
   records: Record[];
 
   @Field(() => String)
+  @Column('varchar', { length: 32, name: 'user_id' })
+  userId: string;
+
+  @Field(() => String)
   @Column('varchar', { length: 200, name: 'file_url' })
   file_url: string;
 

@@ -1,11 +1,15 @@
 import { Logger, LoggerService } from '@app/logger';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { FileUpload, GraphQLUpload } from 'graphql-upload-ts';
+import { UseGuards } from '@nestjs/common';
+import { ClerkAuthGuard, CurrentUser } from '@libs/auth';
+import { User } from '@clerk/backend';
 
 import { Exam } from './exam.entity';
 import { ExamService } from './exam.service';
 
 @Resolver(() => Exam)
+@UseGuards(ClerkAuthGuard)
 export class ExamResolver {
   private readonly logger: Logger;
 
@@ -17,24 +21,27 @@ export class ExamResolver {
   }
 
   @Query(() => [Exam])
-  async getAll(): Promise<Exam[]> {
-    return await this.examService.findAll();
+  async getAll(@CurrentUser() user: User): Promise<Exam[]> {
+    this.logger.log(`Fetching all exams for user: ${user.id}`);
+    return await this.examService.findAll(user.id);
   }
 
   @Query(() => Exam)
-  async getById(@Args('id') id: string): Promise<Exam> {
-    return await this.examService.findOne(id);
+  async getById(@Args('id') id: string, @CurrentUser() user: User): Promise<Exam> {
+    this.logger.log(`Fetching exam ${id} for user: ${user.id}`);
+    return await this.examService.findOne(id, user.id);
   }
 
   @Mutation(() => Exam)
   async uploadExam(
     @Args({ name: 'file', type: () => GraphQLUpload })
     file: Promise<FileUpload>,
+    @CurrentUser() user: User,
   ): Promise<Exam> {
-    this.logger.log('Starting exam upload and processing');
+    this.logger.log(`Starting exam upload for user: ${user.id}`);
 
     const upload = await file;
-    const exam = await this.examService.uploadAndCreate(upload);
+    const exam = await this.examService.uploadAndCreate(upload, user.id);
 
     this.logger.log(`Exam processed successfully with ID: ${exam.id}`);
 

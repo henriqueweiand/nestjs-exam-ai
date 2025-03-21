@@ -19,7 +19,6 @@ export class TypeOrmFactory implements PersistenceFactory<TypeOrmModuleOptions> 
       autoLoadEntities: true,
       synchronize: false,
       migrationsRun: false,
-      ssl: true,
       entities: [__dirname + '../../../**/*.entity{.ts,.js}'],
     };
 
@@ -27,9 +26,9 @@ export class TypeOrmFactory implements PersistenceFactory<TypeOrmModuleOptions> 
   }
 
   private _getEnvs(dbName: string) {
-    const DATABASE_URL = this.configService.getOrThrow(`DATABASE_URL`);
+    const DATABASE_URL = this.configService.get(`DATABASE_URL`);
 
-    if (DATABASE_URL) {
+    if (!!DATABASE_URL) {
       console.info('USING DATABASE_URL');
 
       return {

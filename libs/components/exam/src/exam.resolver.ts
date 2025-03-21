@@ -22,7 +22,7 @@ export class ExamResolver {
   }
 
   @Query(() => Exam)
-  async getOne(@Args('id') id: string): Promise<Exam> {
+  async getById(@Args('id') id: string): Promise<Exam> {
     return await this.examService.findOne(id);
   }
 

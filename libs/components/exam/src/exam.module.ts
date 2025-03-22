@@ -9,9 +9,10 @@ import { RecordModule } from './record/record.module';
 import { Exam } from './exam.entity';
 import { ExamService } from './exam.service';
 import { ExamResolver } from './exam.resolver';
+import { Record } from './record/record.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Exam]), LoggerModule, RecordModule, FileManagementModule, OpenAIModule],
+  imports: [TypeOrmModule.forFeature([Exam, Record]), LoggerModule, RecordModule, FileManagementModule, OpenAIModule],
   providers: [ExamService, ExamResolver],
   exports: [ExamService],
 })

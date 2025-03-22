@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, InternalServerErrorException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FileUpload } from 'graphql-upload-ts';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 
 import { Logger, LoggerService } from '@app/logger';
 import { FileManagementService } from '@components/file-management/file-management.service';
@@ -9,6 +9,7 @@ import { Exam } from './exam.entity';
 import { Record } from './record/record.entity';
 import { RecordService } from './record/record.service';
 import { OpenAIService } from '@components/openai/opeanai.service';
+import { RecordGroup } from './record/record-group.model';
 
 @Injectable()
 export class ExamService {
@@ -17,6 +18,8 @@ export class ExamService {
   constructor(
     private readonly loggerService: LoggerService,
     private readonly recordService: RecordService,
+    @InjectRepository(Record)
+    private readonly recordRepository: Repository<Record>,
     @InjectRepository(Exam)
     private readonly examRepository: Repository<Exam>,
     private readonly fileManagementService: FileManagementService,
@@ -29,7 +32,7 @@ export class ExamService {
     return await this.examRepository.find({
       where: { userId },
       relations: ['records'],
-      order: { collectedDate: 'DESC' },
+      order: { collectedDate: 'DESC' as const },
     });
   }
 
@@ -125,5 +128,53 @@ export class ExamService {
       this.logger.error(`Failed to handle exam upload: ${error.message}`);
       throw new InternalServerErrorException('Failed to handle exam upload');
     }
+  }
+
+  async findAllRecordsByName(userId: string, recordName: string): Promise<Record[]> {
+    const query = {
+      relations: ['exam'],
+      where: {
+        exam: {
+          userId: userId,
+        },
+        name: ILike(`%${recordName}%`),
+      },
+      order: {
+        exam: {
+          collectedDate: 'DESC' as const,
+        },
+      },
+    };
+
+    return await this.recordRepository.find(query);
+  }
+
+  async findAllRecordsPerGroup(userId: string): Promise<RecordGroup[]> {
+    const records = await this.recordRepository.find({
+      relations: ['exam'],
+      where: {
+        exam: {
+          userId: userId,
+        },
+      },
+      order: {
+        exam: {
+          collectedDate: 'DESC',
+        },
+      },
+    });
+
+    const groupedMap = records.reduce((acc, record) => {
+      if (!acc.has(record.name)) {
+        acc.set(record.name, []);
+      }
+      acc.get(record.name).push(record);
+      return acc;
+    }, new Map<string, Record[]>());
+
+    return Array.from(groupedMap.entries()).map(([name, records]) => ({
+      name,
+      records,
+    }));
   }
 }

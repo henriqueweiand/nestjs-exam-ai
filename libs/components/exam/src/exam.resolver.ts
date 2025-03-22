@@ -7,6 +7,8 @@ import { User } from '@clerk/backend';
 
 import { Exam } from './exam.entity';
 import { ExamService } from './exam.service';
+import { Record } from './record/record.entity';
+import { RecordGroup } from './record/record-group.model';
 
 @Resolver(() => Exam)
 @UseGuards(ClerkAuthGuard)
@@ -46,5 +48,17 @@ export class ExamResolver {
     this.logger.log(`Exam processed successfully with ID: ${exam.id}`);
 
     return exam;
+  }
+
+  @Query(() => [Record])
+  async getRecords(@CurrentUser() user: User, @Args('recordName', { nullable: true }) recordName?: string): Promise<Record[]> {
+    this.logger.log(`Fetching records for user: ${user.id} with filter: ${recordName || 'none'}`);
+    return await this.examService.findAllRecordsByName(user.id, recordName);
+  }
+
+  @Query(() => [RecordGroup])
+  async getAllRecordsPerGroup(@CurrentUser() user: User): Promise<RecordGroup[]> {
+    this.logger.log(`Fetching grouped records for user: ${user.id}`);
+    return await this.examService.findAllRecordsPerGroup(user.id);
   }
 }

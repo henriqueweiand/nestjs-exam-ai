@@ -2,6 +2,9 @@
 
 A NestJS-based backend application that leverages AI to analyze health examination results, helping patients better understand their medical reports before doctor appointments.
 
+Backend: https://github.com/henriqueweiand/nestjs-exam-ai
+Frontend: https://github.com/henriqueweiand/nextjs-exam-ai
+
 ## Overview
 
 This application allows users to upload their health examination results (like blood tests) and receive AI-powered analysis and insights. The system processes the data and provides easy-to-understand explanations of the results, enabling patients to have more informed discussions with their healthcare providers.
